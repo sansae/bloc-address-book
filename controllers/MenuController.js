@@ -100,4 +100,8 @@ module.exports = class MenuController {
     console.log(`${this.getDate()}, ${this.getTime()}`);
     this.main();
   }
+
+  getContactCount() {
+    return this.contacts.length;
+  }
 }
