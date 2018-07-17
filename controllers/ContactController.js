@@ -1,4 +1,3 @@
-const inquirer = require("inquirer");
 const Contact = require("../db/models").Contact;
 
 module.exports = class ContactController {
@@ -30,9 +29,97 @@ module.exports = class ContactController {
         }
       }
     ];
-  }
+
+    this.searchForContactQuestions = [
+      {
+        type: "input",
+        name: "name",
+        message: "Who are you searching for? ",
+        validate(val) {
+          return val !== "";
+        }
+      }
+    ];
+
+    this.showContactQuestions = [
+      {
+        type: "list",
+        name: "selected",
+        message: "Please choose from an option below: ",
+        choices: [
+          "Delete contact",
+          "Main menu"
+        ]
+      }
+    ];
+
+    this.deleteConfirmQuestions = [
+      {
+        type: "confirm",
+        name: "confirmation",
+        message: "Are you sure you want to delete this contact?"
+      }
+    ];
+
+    this.deleteContactQuestions = [
+      {
+        type: "input",
+        name: "id",
+        message: "Enter ID to delete contact or enter \"N\" to return to main menu: ",
+        validate(val) {
+          return val !== "";
+        }
+      }
+    ];
+  }// end constructor
 
   addContact(name, phone, email) {
     return Contact.create({ name, phone, email });
+  }
+
+  getContacts() {
+    return Contact.findAll();
+  }
+
+  iterativeSearch(contacts, target) {
+    for (let contact of contacts) {
+      if (contact.name.toLowerCase() === target.toLowerCase()) {
+        return contact;
+      }
+    }
+    return null;
+  }
+
+  binarySearch(contacts, target) {
+    let min = 0;
+    let max = contacts.length - 1;
+    let mid;
+
+    while (min <= max) {
+      mid = Math.floor((min + max) / 2);
+      let currentContact = contacts[mid];
+
+      if (currentContact.name > target) {
+        max = mid - 1;
+      } else if (currentContact.name < target) {
+        min = mid + 1;
+      } else {
+        return contacts[mid];
+      }
+    }
+
+    return null;
+  }
+
+  search(name) {
+    return Contact.findOne({
+      where: {name}
+    });
+  }
+
+  delete(id) {
+    return Contact.destroy({
+      where: {id}
+    })
   }
 }
